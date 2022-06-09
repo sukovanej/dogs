@@ -33,17 +33,23 @@ def curry(f: Fn2[A, B, C]) -> Fn[A, Fn[B, C]]:
 def curry(f: Fn[A, B]) -> Fn[A, B]:
     ...
 
-def curry(f: Any) -> Any:
-    def wrapper(remaining_arguments: int, f, a):
-        remaining_arguments = remaining_arguments - 1
-        if remaining_arguments == 0:
-            return f(a)
-        return partial(wrapper, remaining_arguments - 1, partial(f, a))
+class CurriedFunction:
+    def __init__(self, fn):
+        self._fn = fn
+        sig = signature(fn)
+        self._remaining_arguments = len(sig.parameters)
+        self._args = []
 
-    sig = signature(f)
-    remaining_arguments = len(sig.parameters)
+    def __call__(self, arg):
+        self._args.append(arg)
+        self._remaining_arguments = self._remaining_arguments - 1
 
-    return partial(wrapper, remaining_arguments)
+        if self._remaining_arguments == 0:
+            return self._fn(*self._args)
+        else:
+            return self
+
+curry = CurriedFunction
 
 # pipe
 
@@ -71,3 +77,7 @@ def pipe(init: Any, /, *fns: Any) -> Any:
     if len(fns) == 0:
         return init
     return pipe(fns[0](init), *fns[1:])
+
+@curry
+def apply(a: A, f: Fn[A, B]) -> B:
+    return f(a)
