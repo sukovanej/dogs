@@ -38,6 +38,10 @@ def curry(f: Fn[A, B]) -> Fn[A, B]:
     ...
 
 
+def curry(f: Any) -> Any:
+    return CurriedFunction(f)
+
+
 class CurriedFunction:
     def __init__(self, fn):
         self._fn = fn
@@ -56,10 +60,6 @@ class CurriedFunction:
 
     def __repr__(self):
         return f"[Curried function] {self._fn}"
-
-
-def curry(f: Any) -> Any:
-    return CurriedFunction(f)
 
 
 # pipe
@@ -97,7 +97,7 @@ def pipe(
     ...
 
 
-def pipe(init: Any, /, *fns: Any) -> Any:
+def pipe(init: Any, *fns: Any) -> Any:
     if len(fns) == 0:
         return init
     return pipe(fns[0](init), *fns[1:])

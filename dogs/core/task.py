@@ -1,6 +1,6 @@
-from typing import Any, TypeVar
+from typing import TypeVar
 from collections.abc import Coroutine
-from dogs.function import Fn, Lazy, curry
+from dogs.core.function import Lazy
 
 A = TypeVar("A")
 B = TypeVar("B")

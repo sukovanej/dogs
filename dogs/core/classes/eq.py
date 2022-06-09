@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 from dogs.core.function import Fn2
 
 from dogs.core.function import curry
@@ -30,7 +30,7 @@ def from_equals(f: Fn2[A, A, bool]) -> Eq[A]:
     return _EqFromFn(f)
 
 
-standard_eq = from_equals(lambda a, b: a == b)
+standard_eq: Eq[Any] = from_equals(lambda a, b: a == b)
 
 # eq for builtin types
 

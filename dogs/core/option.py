@@ -48,7 +48,9 @@ def some(a: A) -> Option[A]:
     return Some(a)
 
 
-none = Nothing()
+def none() -> Nothing[T]:
+    return Nothing()
+
 
 # Destructors
 
@@ -66,31 +68,30 @@ def is_none(fa: Option[A]) -> TypeGuard[Nothing[A]]:
 F = TypeVar("F")
 
 
-class _FunctorInstance(Functor[Option]):
+class _FunctorInstance(Functor):
     def map(self, f: Fn[A, B], fa: Option[A]) -> Option[B]:
         if is_some(fa):
             return some(f(fa._value))
-        return none
+        return none()
 
 
-class _ApplyInstance(Apply[Option], _FunctorInstance):
-    @curry
+class _ApplyInstance(Apply, _FunctorInstance):
     def ap(self, f: Option[Fn[A, B]], fa: Option[A]) -> Option[B]:
         if is_some(f) and is_some(fa):
             return Some((f.get_value())(fa.get_value()))
-        return none
+        return none()
 
 
-class _PointedInstance(Pointed[Option]):
+class _PointedInstance(Pointed):
     def of(self, a: T) -> Option[T]:
         return Some(a)
 
 
-class _ChainInstance(Chain[Option], _ApplyInstance):
+class _ChainInstance(Chain, _ApplyInstance):
     def chain(self, f: Fn[A, Option[B]], fa: Option[A]) -> Option[B]:
         if is_some(fa):
             return f(fa.get_value())
-        return none
+        return none()
 
 
 functor = _FunctorInstance()
