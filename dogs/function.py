@@ -46,14 +46,16 @@ class CurriedFunction:
         self._fn = fn
         self._remaining_arguments = remaining_arguments
         self._args = args
-    
+
     @classmethod
     def from_fn(cls, fn):
         remaining_arguments = len(signature(fn).parameters)
         return cls(fn, remaining_arguments, [])
 
     def _partialy_apply(self, arg):
-        return CurriedFunction(self._fn, self._remaining_arguments - 1, self._args + [arg])
+        return CurriedFunction(
+            self._fn, self._remaining_arguments - 1, self._args + [arg]
+        )
 
     def __call__(self, arg):
         if self._remaining_arguments == 1:
@@ -118,6 +120,7 @@ def apply2(a: A, b: B) -> Fn[Fn[A, Fn[B, C]], C]:
         return f(a)(b)
 
     return wrap
+
 
 @curry
 def tap(f: Fn[A, Any], a: A) -> A:
