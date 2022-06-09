@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from dogs.function import Fn, curry
 from dogs.hkt import Kind
@@ -20,3 +20,8 @@ class Chain(Apply[F]):
 @curry
 def chain(F: Chain[F], f: Fn[A, Kind[F, B]], fa: Kind[F, A]) -> Kind[F, B]:
     return F.chain(f, fa)
+
+
+@curry
+def chain_first(F: Chain[F], f: Fn[A, Kind[F, Any]], fa: Kind[F, A]) -> Kind[F, A]:
+    return F.chain(lambda i: F.map((lambda _: i), f(i)), fa)

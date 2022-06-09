@@ -12,3 +12,10 @@ mypy:
 format:
 	poetry run black dogs/ tests/
 	poetry run isort dogs/ tests/
+
+clean:
+	find dogs -name "*.pyc" -exec rm {} \;
+	find dogs -name "__pycache__" -exec rm -rf {} \;
+
+	find tests -name "*.pyc" -exec rm {} \;
+	find tests -name "__pycache__" -exec rm -rf {} \;

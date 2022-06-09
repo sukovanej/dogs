@@ -38,24 +38,28 @@ def curry(f: Fn[A, B]) -> Fn[A, B]:
 
 
 def curry(f: Any) -> Any:
-    return CurriedFunction(f)
+    return CurriedFunction.from_fn(f)
 
 
 class CurriedFunction:
-    def __init__(self, fn):
+    def __init__(self, fn, remaining_arguments, args):
         self._fn = fn
-        self._signature = signature(fn)
-        self._remaining_arguments = len(self._signature.parameters)
-        self._args = []
+        self._remaining_arguments = remaining_arguments
+        self._args = args
+    
+    @classmethod
+    def from_fn(cls, fn):
+        remaining_arguments = len(signature(fn).parameters)
+        return cls(fn, remaining_arguments, [])
+
+    def _partialy_apply(self, arg):
+        return CurriedFunction(self._fn, self._remaining_arguments - 1, self._args + [arg])
 
     def __call__(self, arg):
-        self._args.append(arg)
-        self._remaining_arguments = self._remaining_arguments - 1
-
-        if self._remaining_arguments == 0:
-            return self._fn(*self._args)
+        if self._remaining_arguments == 1:
+            return self._fn(*(self._args + [arg]))
         else:
-            return self
+            return self._partialy_apply(arg)
 
     def __repr__(self):
         return f"[Curried function] {self._fn}"
@@ -105,9 +109,17 @@ def pipe(init: Any, *fns: Any) -> Any:
 def apply(a: A) -> Fn[Fn[A, B], B]:
     def wrap(f: Fn[A, B]) -> B:
         return f(a)
+
     return wrap
+
 
 def apply2(a: A, b: B) -> Fn[Fn[A, Fn[B, C]], C]:
     def wrap(f: Fn[A, Fn[B, C]]) -> C:
         return f(a)(b)
+
     return wrap
+
+@curry
+def tap(f: Fn[A, Any], a: A) -> A:
+    f(a)
+    return a

@@ -4,6 +4,8 @@ from dogs.classes.applicative import Applicative
 from dogs.classes.apply import Apply
 from dogs.classes.apply import ap as _ap
 from dogs.classes.chain import Chain
+from dogs.classes.chain import chain as _chain
+from dogs.classes.chain import chain_first as _chain_first
 from dogs.classes.from_io import FromIO
 from dogs.classes.from_io import from_io as _from_io
 from dogs.classes.functor import Functor
@@ -12,15 +14,13 @@ from dogs.classes.monad import Monad
 from dogs.classes.monad_io import MonadIO
 from dogs.classes.pointed import Pointed
 from dogs.classes.pointed import of as _of
-from dogs.function import Fn, Lazy
+from dogs.function import Fn
+
+from .io_model import IO
 
 T = TypeVar("T")
 A = TypeVar("A")
 B = TypeVar("B")
-
-# Model
-
-IO = Lazy[T]
 
 # Instances
 
@@ -76,7 +76,8 @@ of = _of(Pointed)
 map = _map(Functor)
 ap = _ap(Apply)
 from_io = _from_io(FromIO)
-
+chain = _chain(Chain)
+chain_first = _chain_first(Monad)
 
 # Unsafe
 
