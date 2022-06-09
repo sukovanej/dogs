@@ -1,10 +1,16 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional, TypeGuard, TypeVar, Generic
+from functools import partial
+from typing import Any, Generic, Optional, TypeGuard, TypeVar
 
-from dogs.core.classes.apply import Apply, ap as _ap
-from dogs.core.classes.chain import Chain, chain as _chain
-from dogs.core.classes.functor import Functor, map as _map
-from dogs.core.classes.pointed import Pointed, of as _of
+from dogs.core.classes import eq
+from dogs.core.classes.apply import Apply
+from dogs.core.classes.apply import ap as _ap
+from dogs.core.classes.chain import Chain
+from dogs.core.classes.chain import chain as _chain
+from dogs.core.classes.functor import Functor
+from dogs.core.classes.functor import map as _map
+from dogs.core.classes.pointed import Pointed
+from dogs.core.classes.pointed import of as _of
 from dogs.hkt.kind import Kind
 
 from .function import Fn, curry
@@ -84,3 +90,11 @@ map = _map(functor)
 ap = _ap(apply)
 of = _of(pointed)
 chain = _chain(chain)
+
+def create_eq(E: eq.Eq[A]) -> eq.Eq[Option[A]]:
+    return eq.from_equals(partial(_equals, E))
+
+def _equals(E: eq.Eq[A], a: Option[A], b: Option[A]) -> bool:
+    return is_some(a) and is_some(b) and E.equals(a.get_value(), b.get_value())
+
+standard_eq = create_eq(eq.standard_eq)
