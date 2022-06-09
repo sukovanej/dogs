@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeGuard, TypeVar, cast
 
-from . import option
-from .function import Fn, Lazy, curry
+from dogs.data import option
+from dogs.function import Fn, Lazy, curry
 
 T = TypeVar("T")
 A = TypeVar("A")

@@ -1,4 +1,3 @@
-from functools import partial
 from inspect import signature
 from typing import Any, Callable, TypeVar, overload
 

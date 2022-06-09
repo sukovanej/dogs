@@ -1,5 +1,5 @@
-from dogs.core import option as O
-from dogs.core.function import pipe
+from dogs.data import option as O
+from dogs.function import pipe
 
 
 def add_1(a: int) -> int:

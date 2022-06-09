@@ -2,18 +2,18 @@ from abc import ABC, abstractmethod
 from functools import partial
 from typing import Any, Generic, Optional, TypeGuard, TypeVar
 
-from dogs.core.classes import eq
-from dogs.core.classes.applicative import Applicative
-from dogs.core.classes.apply import Apply
-from dogs.core.classes.apply import ap as _ap
-from dogs.core.classes.chain import Chain
-from dogs.core.classes.chain import chain as _chain
-from dogs.core.classes.functor import Functor
-from dogs.core.classes.functor import map as _map
-from dogs.core.classes.monad import Monad
-from dogs.core.classes.pointed import Pointed
-from dogs.core.classes.pointed import of as _of
-from dogs.core.function import Fn
+from dogs.classes import eq
+from dogs.classes.applicative import Applicative
+from dogs.classes.apply import Apply
+from dogs.classes.apply import ap as _ap
+from dogs.classes.chain import Chain
+from dogs.classes.chain import chain as _chain
+from dogs.classes.functor import Functor
+from dogs.classes.functor import map as _map
+from dogs.classes.monad import Monad
+from dogs.classes.pointed import Pointed
+from dogs.classes.pointed import of as _of
+from dogs.function import Fn
 from dogs.hkt.kind import Kind
 
 T = TypeVar("T")

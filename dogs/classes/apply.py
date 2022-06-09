@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import TypeVar
 
-from dogs.core.function import Fn, curry
+from dogs.function import Fn, curry
 from dogs.hkt import Kind
 
 from .functor import Functor

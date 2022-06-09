@@ -1,4 +1,4 @@
-from dogs.core.function import apply, curry, pipe
+from dogs.function import apply, curry, pipe
 
 
 def test_curry():

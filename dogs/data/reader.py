@@ -1,6 +1,6 @@
 from typing import Any, TypeVar
 
-from dogs.core.function import Fn, curry
+from dogs.function import Fn, curry
 
 A = TypeVar("A")
 B = TypeVar("B")

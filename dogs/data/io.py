@@ -1,6 +1,6 @@
 from typing import Callable, TypeVar
 
-from .function import Fn, curry
+from dogs.function import Fn, curry
 
 T = TypeVar("T")
 A = TypeVar("A")
