@@ -6,7 +6,6 @@ from dogs.hkt import Kind
 
 from .functor import Functor
 
-
 F = TypeVar("F")
 A = TypeVar("A", covariant=True)
 B = TypeVar("B", covariant=True)

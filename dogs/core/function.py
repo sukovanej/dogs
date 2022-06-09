@@ -1,6 +1,6 @@
-from typing import Any, Callable, TypeVar, overload
-from inspect import signature
 from functools import partial
+from inspect import signature
+from typing import Any, Callable, TypeVar, overload
 
 A = TypeVar("A")
 B = TypeVar("B")

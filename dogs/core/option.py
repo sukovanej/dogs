@@ -3,17 +3,18 @@ from functools import partial
 from typing import Any, Generic, Optional, TypeGuard, TypeVar
 
 from dogs.core.classes import eq
+from dogs.core.classes.applicative import Applicative
 from dogs.core.classes.apply import Apply
 from dogs.core.classes.apply import ap as _ap
 from dogs.core.classes.chain import Chain
 from dogs.core.classes.chain import chain as _chain
 from dogs.core.classes.functor import Functor
 from dogs.core.classes.functor import map as _map
+from dogs.core.classes.monad import Monad
 from dogs.core.classes.pointed import Pointed
 from dogs.core.classes.pointed import of as _of
+from dogs.core.function import Fn
 from dogs.hkt.kind import Kind
-
-from .function import Fn, curry
 
 T = TypeVar("T")
 A = TypeVar("A")
@@ -68,6 +69,11 @@ def is_none(fa: Option[A]) -> TypeGuard[Nothing[A]]:
 F = TypeVar("F")
 
 
+class _PointedInstance(Pointed):
+    def of(self, a: T) -> Option[T]:
+        return Some(a)
+
+
 class _FunctorInstance(Functor):
     def map(self, f: Fn[A, B], fa: Option[A]) -> Option[B]:
         if is_some(fa):
@@ -82,9 +88,8 @@ class _ApplyInstance(Apply, _FunctorInstance):
         return none()
 
 
-class _PointedInstance(Pointed):
-    def of(self, a: T) -> Option[T]:
-        return Some(a)
+class _ApplicativeInstance(Applicative, _ApplyInstance, _PointedInstance):
+    pass
 
 
 class _ChainInstance(Chain, _ApplyInstance):
@@ -94,14 +99,20 @@ class _ChainInstance(Chain, _ApplyInstance):
         return none()
 
 
+class _MonadInstance(Monad, _ChainInstance, _ApplicativeInstance):
+    pass
+
+
+pointed = _PointedInstance()
 functor = _FunctorInstance()
 apply = _ApplyInstance()
-pointed = _PointedInstance()
+applicative = _ApplicativeInstance()
 chain = _ChainInstance()
+monad = _MonadInstance()
 
+of = _of(pointed)
 map = _map(functor)
 ap = _ap(apply)
-of = _of(pointed)
 chain = _chain(chain)
 
 

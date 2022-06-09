@@ -4,7 +4,6 @@ from typing import Any, Generic, TypeVar
 from dogs.core.function import Fn, curry
 from dogs.hkt.kind import Kind
 
-
 F = TypeVar("F", covariant=True)
 A = TypeVar("A", covariant=True)
 B = TypeVar("B", covariant=True)

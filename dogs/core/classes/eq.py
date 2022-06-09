@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeVar
-from dogs.core.function import Fn2
 
-from dogs.core.function import curry
+from dogs.core.function import Fn2, curry
 
 A = TypeVar("A")
 

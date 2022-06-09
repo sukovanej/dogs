@@ -1,4 +1,5 @@
 from typing import Any, TypeVar
+
 from dogs.core.function import Fn, curry
 
 A = TypeVar("A")

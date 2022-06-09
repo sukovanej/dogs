@@ -8,3 +8,4 @@ mypy:
 
 format:
 	poetry run black dogs/ tests/
+	poetry run isort dogs/ tests/

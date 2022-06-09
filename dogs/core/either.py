@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any, TypeGuard, TypeVar, Generic, cast
+from typing import Any, Generic, TypeGuard, TypeVar, cast
 
 from . import option
-
 from .function import Fn, Lazy, curry
 
 T = TypeVar("T")
