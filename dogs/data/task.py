@@ -5,11 +5,14 @@ from dogs.classes.applicative import Applicative
 from dogs.classes.apply import Apply
 from dogs.classes.apply import ap as _ap
 from dogs.classes.chain import Chain
+from dogs.classes.from_io import FromIO, from_io as _from_io
 from dogs.classes.functor import Functor
 from dogs.classes.functor import map as _map
 from dogs.classes.monad import Monad
+from dogs.classes.monad_io import MonadIO
 from dogs.classes.pointed import Pointed
 from dogs.classes.pointed import of as _of
+from dogs.data import io
 from dogs.function import Fn, Lazy
 
 A = TypeVar("A")
@@ -69,13 +72,26 @@ class _MonadInstance(Monad, _ApplicativeInstance, _ChainInstance):
     pass
 
 
-pointed = _PointedInstance()
-functor = _FunctorInstance()
-apply = _ApplyInstance()
-applicative = _ApplicativeInstance()
-chain = _ChainInstance()
-monad = _MonadInstance()
+class _FromIOInstance(FromIO):
+    def from_io(self, fa: io.IO[A]) -> Task[A]:
+        return lambda: _async_of(fa())
 
-of = _of(pointed)
-map = _map(functor)
-ap = _ap(apply)
+
+class _MonadIOInstance(MonadIO, _FromIOInstance, _MonadInstance):
+    pass
+
+
+Pointed = _PointedInstance()
+Functor = _FunctorInstance()
+Apply = _ApplyInstance()
+Applicative = _ApplicativeInstance()
+Chain = _ChainInstance()
+Monad = _MonadInstance()
+FromIO = _FromIOInstance()
+MonadIO = _MonadIOInstance()
+
+
+of = _of(Pointed)
+map = _map(Functor)
+ap = _ap(Apply)
+from_io = _from_io(FromIO)

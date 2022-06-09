@@ -105,3 +105,13 @@ def pipe(init: Any, *fns: Any) -> Any:
 @curry
 def apply(a: A, f: Fn[A, B]) -> B:
     return f(a)
+
+
+@curry
+def apply2(a: A, b: B, f: Fn2[A, B, C]) -> C:
+    return f(a, b)
+
+
+@curry
+def apply3(a: A, b: B, c: C, f: Fn3[A, B, C, D]) -> D:
+    return f(a, b, c)

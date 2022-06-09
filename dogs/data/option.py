@@ -66,8 +66,6 @@ def is_none(fa: Option[A]) -> TypeGuard[Nothing[A]]:
 
 # Instances
 
-F = TypeVar("F")
-
 
 class _PointedInstance(Pointed):
     def of(self, a: T) -> Option[T]:
@@ -103,17 +101,17 @@ class _MonadInstance(Monad, _ChainInstance, _ApplicativeInstance):
     pass
 
 
-pointed = _PointedInstance()
-functor = _FunctorInstance()
-apply = _ApplyInstance()
-applicative = _ApplicativeInstance()
-chain = _ChainInstance()
-monad = _MonadInstance()
+Pointed = _PointedInstance()
+Functor = _FunctorInstance()
+Apply = _ApplyInstance()
+Applicative = _ApplicativeInstance()
+Chain = _ChainInstance()
+Monad = _MonadInstance()
 
-of = _of(pointed)
-map = _map(functor)
-ap = _ap(apply)
-chain = _chain(chain)
+of = _of(Pointed)
+map = _map(Functor)
+ap = _ap(Apply)
+chain = _chain(Chain)
 
 
 def create_eq(E: eq.Eq[A]) -> eq.Eq[Option[A]]:
@@ -124,4 +122,4 @@ def _equals(E: eq.Eq[A], a: Option[A], b: Option[A]) -> bool:
     return is_some(a) and is_some(b) and E.equals(a.get_value(), b.get_value())
 
 
-standard_eq = create_eq(eq.standard_eq)
+StandardEq = create_eq(eq.standard_eq)
