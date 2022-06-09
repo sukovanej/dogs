@@ -102,16 +102,12 @@ def pipe(init: Any, *fns: Any) -> Any:
     return pipe(fns[0](init), *fns[1:])
 
 
-@curry
-def apply(a: A, f: Fn[A, B]) -> B:
-    return f(a)
+def apply(a: A) -> Fn[Fn[A, B], B]:
+    def wrap(f: Fn[A, B]) -> B:
+        return f(a)
+    return wrap
 
-
-@curry
-def apply2(a: A, b: B, f: Fn2[A, B, C]) -> C:
-    return f(a, b)
-
-
-@curry
-def apply3(a: A, b: B, c: C, f: Fn3[A, B, C, D]) -> D:
-    return f(a, b, c)
+def apply2(a: A, b: B) -> Fn[Fn[A, Fn[B, C]], C]:
+    def wrap(f: Fn[A, Fn[B, C]]) -> C:
+        return f(a)(b)
+    return wrap
