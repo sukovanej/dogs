@@ -5,7 +5,8 @@ from dogs.classes.applicative import Applicative
 from dogs.classes.apply import Apply
 from dogs.classes.apply import ap as _ap
 from dogs.classes.chain import Chain
-from dogs.classes.from_io import FromIO, from_io as _from_io
+from dogs.classes.from_io import FromIO
+from dogs.classes.from_io import from_io as _from_io
 from dogs.classes.functor import Functor
 from dogs.classes.functor import map as _map
 from dogs.classes.monad import Monad

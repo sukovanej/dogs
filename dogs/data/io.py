@@ -1,6 +1,6 @@
-from typing import Callable, TypeVar
+from typing import TypeVar
 
-from dogs.function import Fn, curry
+from dogs.function import Fn, Lazy, curry
 
 T = TypeVar("T")
 A = TypeVar("A")
@@ -8,7 +8,7 @@ B = TypeVar("B")
 
 # Model
 
-IO = Callable[[], T]
+IO = Lazy[T]
 
 # Pointed
 
