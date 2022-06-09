@@ -36,8 +36,8 @@ def curry(f: Fn[A, B]) -> Fn[A, B]:
 class CurriedFunction:
     def __init__(self, fn):
         self._fn = fn
-        sig = signature(fn)
-        self._remaining_arguments = len(sig.parameters)
+        self._signature = signature(fn)
+        self._remaining_arguments = len(self._signature.parameters)
         self._args = []
 
     def __call__(self, arg):
@@ -49,9 +49,17 @@ class CurriedFunction:
         else:
             return self
 
-curry = CurriedFunction
+    def __repr__(self):
+        return f"[Curried function] {self._fn}"
+
+def curry(f: Any) -> Any:
+    return CurriedFunction(f)
 
 # pipe
+
+@overload
+def pipe(init: A) -> A:
+    ...
 
 @overload
 def pipe(init: A, /, f: Fn[A, B]) -> B:
