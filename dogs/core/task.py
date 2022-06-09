@@ -11,5 +11,6 @@ Task = Lazy[Coroutine[None, None, A]]
 
 # Pointed
 
+
 def of(a: A) -> Task[A]:
     return lambda: a

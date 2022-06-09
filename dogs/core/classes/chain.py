@@ -6,7 +6,6 @@ from dogs.hkt import Kind
 
 from .apply import Apply
 
-
 F = TypeVar("F")
 A = TypeVar("A")
 B = TypeVar("B")

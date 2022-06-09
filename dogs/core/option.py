@@ -21,10 +21,12 @@ B = TypeVar("B")
 
 # Model
 
+
 class Option(Generic[T], ABC, Kind[Any, T]):
     @abstractmethod
     def get_value(self) -> Optional[T]:
         ...
+
 
 class Some(Option[T]):
     def __init__(self, value: T) -> None:
@@ -33,28 +35,36 @@ class Some(Option[T]):
     def get_value(self) -> T:
         return self._value
 
+
 class Nothing(Option[T]):
     def get_value(self) -> None:
         return None
 
+
 # Constructors
+
 
 def some(a: A) -> Option[A]:
     return Some(a)
+
 
 none = Nothing()
 
 # Destructors
 
+
 def is_some(fa: Option[A]) -> TypeGuard[Some[A]]:
     return fa.get_value() is not None
+
 
 def is_none(fa: Option[A]) -> TypeGuard[Nothing[A]]:
     return fa.get_value() is None
 
+
 # Instances
 
 F = TypeVar("F")
+
 
 class _FunctorInstance(Functor[Option]):
     def map(self, f: Fn[A, B], fa: Option[A]) -> Option[B]:
@@ -62,12 +72,14 @@ class _FunctorInstance(Functor[Option]):
             return some(f(fa._value))
         return none
 
+
 class _ApplyInstance(Apply[Option], _FunctorInstance):
     @curry
     def ap(self, f: Option[Fn[A, B]], fa: Option[A]) -> Option[B]:
         if is_some(f) and is_some(fa):
             return Some((f.get_value())(fa.get_value()))
         return none
+
 
 class _PointedInstance(Pointed[Option]):
     def of(self, a: T) -> Option[T]:
@@ -91,10 +103,13 @@ ap = _ap(apply)
 of = _of(pointed)
 chain = _chain(chain)
 
+
 def create_eq(E: eq.Eq[A]) -> eq.Eq[Option[A]]:
     return eq.from_equals(partial(_equals, E))
 
+
 def _equals(E: eq.Eq[A], a: Option[A], b: Option[A]) -> bool:
     return is_some(a) and is_some(b) and E.equals(a.get_value(), b.get_value())
+
 
 standard_eq = create_eq(eq.standard_eq)
