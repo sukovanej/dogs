@@ -25,59 +25,59 @@ B = TypeVar("B")
 # Instances
 
 
-class _PointedInstance(Pointed):
+class PointedInstance(Pointed):
     def of(self, a: T) -> IO[T]:
         return lambda: a
 
 
-class _FunctorInstance(Functor):
+class FunctorInstance(Functor):
     def map(self, f: Fn[A, B], fa: IO[A]) -> IO[B]:
         return lambda: f(unsafe_run_io(fa))
 
 
-class _ApplyInstance(Apply, _FunctorInstance):
+class ApplyInstance(Apply, FunctorInstance):
     def ap(self, f: IO[Fn[A, B]], fa: IO[A]) -> IO[B]:
         return lambda: unsafe_run_io(f)(unsafe_run_io(fa))
 
 
-class _ApplicativeInstance(Applicative, _ApplyInstance, _PointedInstance):
+class ApplicativeInstance(Applicative, ApplyInstance, PointedInstance):
     pass
 
 
-class _ChainInstance(Chain, _ApplyInstance):
+class ChainInstance(Chain, ApplyInstance):
     def chain(self, f: Fn[A, IO[B]], fa: IO[A]) -> IO[B]:
         return lambda: unsafe_run_io(f(fa()))
 
 
-class _MonadInstance(Monad, _ApplicativeInstance, _ChainInstance):
+class MonadInstance(Monad, ApplicativeInstance, ChainInstance):
     pass
 
 
-class _FromIOInstance(FromIO):
+class FromIOInstance(FromIO):
     def from_io(self, fa: IO[A]) -> IO[A]:
         return fa
 
 
-class _MonadIOInstance(MonadIO, _FromIOInstance, _MonadInstance):
+class MonadIOInstance(MonadIO, FromIOInstance, MonadInstance):
     pass
 
 
-Pointed = _PointedInstance()
-Functor = _FunctorInstance()
-Apply = _ApplyInstance()
-Applicative = _ApplicativeInstance()
-Chain = _ChainInstance()
-Monad = _MonadInstance()
-FromIO = _FromIOInstance()
-MonadIO = _MonadIOInstance()
+pointed_instance = PointedInstance()
+functor_instance = FunctorInstance()
+apply_instance = ApplyInstance()
+applicative_instance = ApplicativeInstance()
+chain_instance = ChainInstance()
+monad_instance = MonadInstance()
+fromIO_instance = FromIOInstance()
+monadIO_instance = MonadIOInstance()
 
 
-of = _of(Pointed)
-map = _map(Functor)
-ap = _ap(Apply)
-from_io = _from_io(FromIO)
-chain = _chain(Chain)
-chain_first = _chain_first(Monad)
+of = _of(pointed_instance)
+map = _map(functor_instance)
+ap = _ap(apply_instance)
+from_io = _from_io(fromIO_instance)
+chain = _chain(chain_instance)
+chain_first = _chain_first(chain_instance)
 
 # Unsafe
 

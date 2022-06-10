@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeGuard, TypeVar, cast
 
+from dogs.classes import eq
 from dogs.classes.applicative import Applicative
 from dogs.classes.apply import Apply
 from dogs.classes.apply import ap as _ap
 from dogs.classes.chain import Chain
 from dogs.classes.chain import chain as _chain
+from dogs.classes.chain import chain_first as _chain_first
 from dogs.classes.functor import Functor
 from dogs.classes.functor import map as _map
 from dogs.classes.monad import Monad
@@ -113,17 +115,18 @@ class _MonadInstance(Monad, _ChainInstance, _ApplicativeInstance):
     pass
 
 
-Pointed = _PointedInstance()
-Functor = _FunctorInstance()
-Apply = _ApplyInstance()
-Applicative = _ApplicativeInstance()
-Chain = _ChainInstance()
-Monad = _MonadInstance()
+pointed_instance = _PointedInstance()
+functor_instance = _FunctorInstance()
+apply_instance = _ApplyInstance()
+applicative_instance = _ApplicativeInstance()
+chain_instance = _ChainInstance()
+monad_instance = _MonadInstance()
 
-of = _of(Pointed)
-map = _map(Functor)
-ap = _ap(Apply)
-chain = _chain(Chain)
+of = _of(pointed_instance)
+map = _map(functor_instance)
+ap = _ap(apply_instance)
+chain = _chain(chain_instance)
+chain_first = _chain_first(chain_instance)
 
 
 # Combinators
@@ -134,3 +137,12 @@ def from_option(on_empty: Lazy[E], fa: option.Option[A]) -> Either[E, A]:
     if option.is_some(fa):
         return right(fa.get_value())
     return left(on_empty())
+
+
+def _equals(a: Either[A, B], b: Either[A, B]) -> bool:
+    both_same_value = is_right(a) and is_right(b) and a.get_value() == b.get_value()
+    both_same_err = is_left(a) and is_left(b) and a.get_value() == b.get_value()
+    return both_same_err or both_same_value
+
+
+StandardEq = eq.from_equals(_equals)

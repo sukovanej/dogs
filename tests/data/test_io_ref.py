@@ -1,5 +1,5 @@
 from dogs.data import io, io_ref
-from dogs.function import pipe, tap
+from dogs.function import pipe
 
 
 def test_io_ref():

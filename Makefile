@@ -7,7 +7,7 @@ test-cov:
 	poetry run pytest --cov dogs tests
 
 mypy:
-	poetry run mypy dogs --show-traceback
+	poetry run mypy dogs
 
 format:
 	poetry run black dogs/ tests/

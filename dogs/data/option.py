@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from functools import partial
-from typing import Any, Generic, Optional, TypeGuard, TypeVar
+from typing import Any, Optional, TypeGuard, TypeVar, cast
 
 from dogs.classes import eq
 from dogs.classes.applicative import Applicative
@@ -14,30 +14,33 @@ from dogs.classes.monad import Monad
 from dogs.classes.pointed import Pointed
 from dogs.classes.pointed import of as _of
 from dogs.function import Fn
-from dogs.hkt.kind import Kind
+from dogs.hkt.kind import Kind1
 
-T = TypeVar("T")
 A = TypeVar("A")
-B = TypeVar("B")
+AC = TypeVar("AC", covariant=True)
+B = TypeVar("B", covariant=True)
 
 # Model
 
 
-class Option(Generic[T], ABC, Kind[Any, T]):
+class Option(ABC, Kind1["Option", A]):
     @abstractmethod
-    def get_value(self) -> Optional[T]:
+    def get_value(self) -> Optional[A]:
         ...
 
 
-class Some(Option[T]):
-    def __init__(self, value: T) -> None:
+OptionKind = Kind1[Option, A]
+
+
+class Some(Option[A]):
+    def __init__(self, value: A) -> None:
         self._value = value
 
-    def get_value(self) -> T:
+    def get_value(self) -> A:
         return self._value
 
 
-class Nothing(Option[T]):
+class Nothing(Option[A]):
     def get_value(self) -> None:
         return None
 
@@ -49,7 +52,7 @@ def some(a: A) -> Option[A]:
     return Some(a)
 
 
-def none() -> Nothing[T]:
+def none() -> Nothing[Any]:
     return Nothing()
 
 
@@ -67,51 +70,59 @@ def is_none(fa: Option[A]) -> TypeGuard[Nothing[A]]:
 # Instances
 
 
-class _PointedInstance(Pointed):
-    def of(self, a: T) -> Option[T]:
+class PointedInstance(Pointed[Option]):
+    def of(self, a: A) -> OptionKind[A]:
         return Some(a)
 
 
-class _FunctorInstance(Functor):
-    def map(self, f: Fn[A, B], fa: Option[A]) -> Option[B]:
+class FunctorInstance(Functor[Option]):
+    def map(self, f: Fn[AC, B], fa: OptionKind[AC]) -> Option[B]:
+        fa = cast(Option[AC], fa)
+
         if is_some(fa):
             return some(f(fa._value))
         return none()
 
 
-class _ApplyInstance(Apply, _FunctorInstance):
-    def ap(self, f: Option[Fn[A, B]], fa: Option[A]) -> Option[B]:
+class ApplyInstance(Apply[Option], FunctorInstance):
+    def ap(self, f: OptionKind[Fn[A, B]], fa: OptionKind[A]) -> OptionKind[B]:
+        fa = cast(Option[A], fa)
+        f = cast(Option[Fn[A, B]], f)
+
         if is_some(f) and is_some(fa):
             return Some((f.get_value())(fa.get_value()))
         return none()
 
 
-class _ApplicativeInstance(Applicative, _ApplyInstance, _PointedInstance):
+class ApplicativeInstance(Applicative, ApplyInstance, PointedInstance):
     pass
 
 
-class _ChainInstance(Chain, _ApplyInstance):
-    def chain(self, f: Fn[A, Option[B]], fa: Option[A]) -> Option[B]:
+class ChainInstance(Chain[Option], ApplyInstance):
+    def chain(self, f: Fn[A, OptionKind[B]], fa: OptionKind[A]) -> OptionKind[B]:
+        fa = cast(Option[A], fa)
+        f = cast(Fn[A, Option[B]], f)
+
         if is_some(fa):
             return f(fa.get_value())
         return none()
 
 
-class _MonadInstance(Monad, _ChainInstance, _ApplicativeInstance):
+class MonadInstance(Monad, ChainInstance, ApplicativeInstance):
     pass
 
 
-Pointed = _PointedInstance()
-Functor = _FunctorInstance()
-Apply = _ApplyInstance()
-Applicative = _ApplicativeInstance()
-Chain = _ChainInstance()
-Monad = _MonadInstance()
+pointed_instance = PointedInstance()
+functor_instance = FunctorInstance()
+apply_instance = ApplyInstance()
+applicative_instance = ApplicativeInstance()
+chain_instance = ChainInstance()
+monad_instance = MonadInstance()
 
-of = _of(Pointed)
-map = _map(Functor)
-ap = _ap(Apply)
-chain = _chain(Chain)
+of = _of(pointed_instance)
+map = _map(functor_instance)
+ap = _ap(apply_instance)
+chain = _chain(chain_instance)
 
 
 def create_eq(E: eq.Eq[A]) -> eq.Eq[Option[A]]:
@@ -119,7 +130,9 @@ def create_eq(E: eq.Eq[A]) -> eq.Eq[Option[A]]:
 
 
 def _equals(E: eq.Eq[A], a: Option[A], b: Option[A]) -> bool:
-    return is_some(a) and is_some(b) and E.equals(a.get_value(), b.get_value())
+    both_none = is_none(a) and is_none(b)
+    both_same = is_some(a) and is_some(b) and E.equals(a.get_value(), b.get_value())
+    return both_none or both_same
 
 
 StandardEq = create_eq(eq.standard_eq)
