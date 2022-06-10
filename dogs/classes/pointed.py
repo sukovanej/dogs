@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Generic, TypeVar
 
-from dogs.function import Fn, curry
+from dogs.function import curry
 from dogs.hkt.kind import Kind1
 
 F = TypeVar("F")
@@ -15,8 +15,6 @@ class Pointed(Generic[F]):
         ...
 
 
-def of(F: Pointed[F]) -> Fn[A, Kind1[F, A]]:
-    def f(a: A) -> Kind1[F, A]:
-        return F.of(a)
-
-    return f
+@curry
+def of(F: Pointed[F], a: A) -> Kind1[F, A]:
+    return F.of(a)
