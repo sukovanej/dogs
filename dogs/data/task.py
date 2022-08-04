@@ -2,7 +2,7 @@ from collections.abc import Awaitable
 from typing import TypeVar
 
 from dogs.data import io
-from dogs.data.io_model import IO
+from dogs.data.io import IO
 from dogs.function import Fn, Lazy, curry, pipe
 
 A = TypeVar("A")

@@ -1,12 +1,14 @@
 from typing import TypeVar
 
-from dogs.function import Fn, curry, pipe
-
-from .io_model import IO
+from dogs.function import Fn, curry, Lazy
 
 T = TypeVar("T")
 A = TypeVar("A")
 B = TypeVar("B")
+
+# Model
+
+IO = Lazy[A]
 
 # Instances
 
