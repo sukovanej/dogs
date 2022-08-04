@@ -11,7 +11,7 @@ def test_task():
 
     task = pipe(
         T.of(1),
-        T.map(lambda a: a + 1),
+        T.fmap(lambda a: a + 1),
         T.chain(my_effect),
         T.chain_io(my_io_effect),
     )

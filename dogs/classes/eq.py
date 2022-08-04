@@ -7,13 +7,16 @@ A = TypeVar("A")
 
 
 class Eq(ABC, Generic[A]):
+    """Class defining how to compare objects of type A."""
+
     @abstractmethod
     def equals(self, left: A, right: A) -> bool:
-        ...
+        """Checker whether left === right under Eq[A]."""
 
 
 @curry
 def equals(eq: Eq[A], a: A, b: A) -> bool:
+    """Checker whether left === right under Eq[A]."""
     return eq.equals(a, b)
 
 
@@ -26,6 +29,7 @@ class _EqFromFn(Eq[A]):
 
 
 def from_equals(f: Fn2[A, A, bool]) -> Eq[A]:
+    """Construct Eq[A] from a function A -> A -> bool."""
     return _EqFromFn(f)
 
 

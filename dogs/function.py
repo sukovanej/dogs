@@ -38,10 +38,13 @@ def curry(f: Fn[A, B]) -> Fn[A, B]:
 
 
 def curry(f: Any) -> Any:
+    """Convert a function of arbitrary number of argument into a curried function."""
     return CurriedFunction.from_fn(f)
 
 
 class CurriedFunction:
+    """Wraps a function a provides curried __call__ protocol."""
+
     def __init__(self, fn, remaining_arguments, args):
         self._fn = fn
         self._remaining_arguments = remaining_arguments
@@ -49,6 +52,8 @@ class CurriedFunction:
 
     @classmethod
     def from_fn(cls, fn):
+        """Create CurriedFunction from an arbitrary function."""
+
         remaining_arguments = len(signature(fn).parameters)
         return cls(fn, remaining_arguments, [])
 
@@ -60,8 +65,7 @@ class CurriedFunction:
     def __call__(self, arg):
         if self._remaining_arguments == 1:
             return self._fn(*(self._args + [arg]))
-        else:
-            return self._partialy_apply(arg)
+        return self._partialy_apply(arg)
 
     def __repr__(self):
         return f"[Curried function] {self._fn}"
@@ -103,12 +107,17 @@ def pipe(
 
 
 def pipe(init: Any, *fns: Any) -> Any:  # type: ignore
+    """Transform value `init` using provided function one by one."""
     if len(fns) == 0:
         return init
     return pipe(fns[0](init), *fns[1:])
 
 
 def apply(a: A) -> Fn[Fn[A, B], B]:
+    """Created a function that accepts a function and returns a result of applying the
+    function with the argument A.
+    """
+
     def wrap(f: Fn[A, B]) -> B:
         return f(a)
 
@@ -116,6 +125,10 @@ def apply(a: A) -> Fn[Fn[A, B], B]:
 
 
 def apply2(a: A, b: B) -> Fn[Fn[A, Fn[B, C]], C]:
+    """Created a function that accepts a function and returns a result of applying the
+    function with the argument A and B.
+    """
+
     def wrap(f: Fn[A, Fn[B, C]]) -> C:
         return f(a)(b)
 
@@ -124,5 +137,9 @@ def apply2(a: A, b: B) -> Fn[Fn[A, Fn[B, C]], C]:
 
 @curry
 def tap(f: Fn[A, Any], a: A) -> A:
+    """Unsafe version of chain_first.
+
+    Don't use in the production code!
+    """
     f(a)
     return a

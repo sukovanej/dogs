@@ -9,6 +9,9 @@ test-cov:
 mypy:
 	poetry run mypy dogs
 
+pylint:
+	poetry run pylint dogs
+
 format:
 	poetry run black dogs/ tests/
 	poetry run isort dogs/ tests/

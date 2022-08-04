@@ -3,7 +3,7 @@ from typing import TypeVar
 
 from dogs.data import io
 from dogs.data.io import IO
-from dogs.function import Fn, Lazy, curry, pipe
+from dogs.function import Fn, Lazy, curry
 
 A = TypeVar("A")
 B = TypeVar("B")
@@ -35,31 +35,38 @@ async def _async_chain(f: Fn[A, Awaitable[B]], fa: Awaitable[A]) -> B:
 
 
 def of(a: A) -> Task[A]:
+    """Pointed"""
     return lambda: _async_of(a)
 
 
 @curry
-def map(f: Fn[A, B], fa: Task[A]) -> Task[B]:
+def fmap(f: Fn[A, B], fa: Task[A]) -> Task[B]:
+    """Functor"""
     return lambda: _async_map(f, fa())
 
 
 @curry
 def ap(f: Task[Fn[A, B]], fa: Task[A]) -> Task[B]:
+    """Apply"""
     return lambda: _async_ap(f(), fa())
 
 
 @curry
 def chain(f: Fn[A, Task[B]], fa: Task[A]) -> Task[B]:
+    """Chain"""
     return lambda: _async_chain(lambda a: f(a)(), fa())
 
 
 @curry
 def from_io(fa: io.IO[A]) -> Task[A]:
+    """FromIO"""
     return lambda: _async_of(fa())
 
 
 @curry
 def chain_io(f: Fn[A, IO[B]], fa: Task[A]) -> Task[B]:
+    """Chain IO effect in the Task monad."""
+
     async def unsafe_run() -> B:
         a = await fa()
         return io.unsafe_run_io(f(a))
@@ -71,4 +78,5 @@ def chain_io(f: Fn[A, IO[B]], fa: Task[A]) -> Task[B]:
 
 
 async def unsafe_run_task(fa: Task[A]) -> A:
+    """Run the task as a coroutine."""
     return await fa()

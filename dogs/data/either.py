@@ -4,7 +4,6 @@ from typing import Any, Generic, TypeGuard, TypeVar, cast
 from dogs.classes import eq
 from dogs.data import option
 from dogs.function import Fn, Lazy, curry
-from dogs.hkt.kind import Kind2
 
 T = TypeVar("T")
 A = TypeVar("A")
@@ -15,16 +14,20 @@ E = TypeVar("E")
 
 
 class Either(Generic[E, A], ABC):
+    """Data structure representing computation with possible error."""
+
     @abstractmethod
     def get_value(self) -> E | A:
-        ...
+        """Unwrap the Either to the error E or the value A."""
 
     @abstractmethod
     def is_left(self) -> bool:
-        ...
+        """Check whether the Either contains an error."""
 
 
 class Right(Either[E, A]):
+    """Data structure representing Either with a value."""
+
     def __init__(self, value: A) -> None:
         self._value = value
 
@@ -36,6 +39,8 @@ class Right(Either[E, A]):
 
 
 class Left(Either[E, A]):
+    """Data structure representing Either with an error."""
+
     def __init__(self, value: E) -> None:
         self._value = value
 
@@ -50,21 +55,25 @@ class Left(Either[E, A]):
 
 
 def left(e: E) -> Left[E, Any]:
+    """Create Either with error E."""
     return Left(e)
 
 
 def right(a: A) -> Right[Any, A]:
+    """Create Either with value A."""
     return Right(a)
 
 
 # Destructors
 
 
-def is_left(fa: Either[E, A]) -> TypeGuard[Kind2[Left, E, A]]:
+def is_left(fa: Either[E, A]) -> TypeGuard[Left[E, A]]:
+    """Check whether Either contains an error."""
     return fa.is_left()
 
 
-def is_right(fa: Either[E, A]) -> TypeGuard[Kind2[Right, E, A]]:
+def is_right(fa: Either[E, A]) -> TypeGuard[Right[E, A]]:
+    """Check whether Either contains a value."""
     return not fa.is_left()
 
 
@@ -72,11 +81,13 @@ def is_right(fa: Either[E, A]) -> TypeGuard[Kind2[Right, E, A]]:
 
 
 def of(a: A) -> Either[Any, A]:
+    """Pointed"""
     return right(a)
 
 
 @curry
-def map(f: Fn[A, B], fa: Either[E, A]) -> Either[E, B]:
+def fmap(f: Fn[A, B], fa: Either[E, A]) -> Either[E, B]:
+    """Functor"""
     if is_right(fa):
         return right(f(fa.get_value()))
     return cast(Either[E, B], fa)
@@ -84,6 +95,7 @@ def map(f: Fn[A, B], fa: Either[E, A]) -> Either[E, B]:
 
 @curry
 def ap(f: Either[E, Fn[A, B]], fa: Either[E, A]) -> Either[E, B]:
+    """Apply"""
     if is_right(f) and is_right(fa):
         return Right(f.get_value()(fa.get_value()))
     return cast(Either[E, B], fa)
@@ -91,6 +103,7 @@ def ap(f: Either[E, Fn[A, B]], fa: Either[E, A]) -> Either[E, B]:
 
 @curry
 def chain(f: Fn[A, Either[E, B]], fa: Either[E, A]) -> Either[E, B]:
+    """Chain"""
     if is_right(fa):
         return f(fa.get_value())
     return cast(Either[E, B], fa)
@@ -101,6 +114,7 @@ def chain(f: Fn[A, Either[E, B]], fa: Either[E, A]) -> Either[E, B]:
 
 @curry
 def from_option(on_empty: Lazy[E], fa: option.Option[A]) -> Either[E, A]:
+    """Create Either from option by providing error E in case the option is None."""
     if option.is_some(fa):
         return right(fa.get_value())
     return left(on_empty())
