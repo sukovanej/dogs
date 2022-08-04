@@ -2,17 +2,6 @@ from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeGuard, TypeVar, cast
 
 from dogs.classes import eq
-from dogs.classes.applicative import Applicative
-from dogs.classes.apply import Apply
-from dogs.classes.apply import ap as _ap
-from dogs.classes.chain import Chain
-from dogs.classes.chain import chain as _chain
-from dogs.classes.chain import chain_first as _chain_first
-from dogs.classes.functor import Functor
-from dogs.classes.functor import map as _map
-from dogs.classes.monad import Monad
-from dogs.classes.pointed import Pointed
-from dogs.classes.pointed import of as _of
 from dogs.data import option
 from dogs.function import Fn, Lazy, curry
 from dogs.hkt.kind import Kind2
@@ -33,6 +22,7 @@ class Either(Generic[E, A], ABC):
     @abstractmethod
     def is_left(self) -> bool:
         ...
+
 
 class Right(Either[E, A]):
     def __init__(self, value: A) -> None:
@@ -55,18 +45,16 @@ class Left(Either[E, A]):
     def is_left(self) -> bool:
         return True
 
-EitherKind = TypeVar("EitherKind", bound=Either)
-
 
 # Constructors
 
 
-def left(e: E) -> Kind2[Either, E, Any]:
-    return cast(Kind2[Either, E, Any], Left(e))
+def left(e: E) -> Left[E, Any]:
+    return Left(e)
 
 
-def right(a: A) -> Kind2[Either, Any, A]:
-    return cast(Kind2[Either, E, Any], Right(a))
+def right(a: A) -> Right[Any, A]:
+    return Right(a)
 
 
 # Destructors
@@ -83,52 +71,29 @@ def is_right(fa: Either[E, A]) -> TypeGuard[Kind2[Right, E, A]]:
 # Instances
 
 
-class _PointedInstance(Pointed):
-    def of(self, a: A) -> Kind2[EitherKind, Any, A]:
-        return right(a)
+def of(a: A) -> Either[Any, A]:
+    return right(a)
 
 
-class _FunctorInstance(Functor):
-    def map(self, f: Fn[A, B], fa: Kind2[EitherKind, E, A]) -> Kind2[EitherKind, E, B]:
-        if is_right(fa):
-            return right(f(fa.get_value()))
-        return cast(Either[E, B], fa)
+@curry
+def map(f: Fn[A, B], fa: Either[E, A]) -> Either[E, B]:
+    if is_right(fa):
+        return right(f(fa.get_value()))
+    return cast(Either[E, B], fa)
 
 
-class _ApplyInstance(Apply, _FunctorInstance):
-    def ap(self, f: Either[E, Fn[A, B]], fa: Either[E, A]) -> Either[E, B]:
-        if is_right(f) and is_right(fa):
-            return Right(f.get_value()(fa.get_value()))
-        return cast(Either[E, B], fa)
+@curry
+def ap(f: Either[E, Fn[A, B]], fa: Either[E, A]) -> Either[E, B]:
+    if is_right(f) and is_right(fa):
+        return Right(f.get_value()(fa.get_value()))
+    return cast(Either[E, B], fa)
 
 
-class _ApplicativeInstance(Applicative, _ApplyInstance, _PointedInstance):
-    pass
-
-
-class _ChainInstance(Chain, _ApplyInstance):
-    def chain(self, f: Fn[A, Either[E, B]], fa: Either[E, A]) -> Either[E, B]:
-        if is_right(fa):
-            return f(fa.get_value())
-        return cast(Either[E, B], fa)
-
-
-class _MonadInstance(Monad, _ChainInstance, _ApplicativeInstance):
-    pass
-
-
-pointed_instance = _PointedInstance()
-functor_instance = _FunctorInstance()
-apply_instance = _ApplyInstance()
-applicative_instance = _ApplicativeInstance()
-chain_instance = _ChainInstance()
-monad_instance = _MonadInstance()
-
-of = _of(pointed_instance)
-map = _map(functor_instance)
-ap = _ap(apply_instance)
-chain = _chain(chain_instance)
-chain_first = _chain_first(chain_instance)
+@curry
+def chain(f: Fn[A, Either[E, B]], fa: Either[E, A]) -> Either[E, B]:
+    if is_right(fa):
+        return f(fa.get_value())
+    return cast(Either[E, B], fa)
 
 
 # Combinators

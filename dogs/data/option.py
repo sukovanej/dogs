@@ -1,20 +1,9 @@
 from abc import ABC, abstractmethod
 from functools import partial
-from typing import Any, Optional, TypeGuard, TypeVar, cast
+from typing import Any, Generic, Optional, TypeGuard, TypeVar, cast
 
 from dogs.classes import eq
-from dogs.classes.applicative import Applicative
-from dogs.classes.apply import Apply
-from dogs.classes.apply import ap as _ap
-from dogs.classes.chain import Chain
-from dogs.classes.chain import chain as _chain
-from dogs.classes.functor import Functor
-from dogs.classes.functor import map as _map
-from dogs.classes.monad import Monad
-from dogs.classes.pointed import Pointed
-from dogs.classes.pointed import of as _of
-from dogs.function import Fn
-from dogs.hkt.kind import Kind1
+from dogs.function import Fn, curry
 
 A = TypeVar("A")
 AC = TypeVar("AC", covariant=True)
@@ -23,16 +12,13 @@ B = TypeVar("B", covariant=True)
 # Model
 
 
-class Option(ABC, Kind1["Option", A]):
+class Option(ABC, Generic[A]):
     @abstractmethod
     def get_value(self) -> Optional[A]:
         ...
 
 
-OptionKind = Kind1[Option, A]
-
-
-class Some(Option[A]):
+class Some(Generic[A], Option[A]):
     def __init__(self, value: A) -> None:
         self._value = value
 
@@ -40,7 +26,7 @@ class Some(Option[A]):
         return self._value
 
 
-class Nothing(Option[A]):
+class Nothing(Generic[A], Option[A]):
     def get_value(self) -> None:
         return None
 
@@ -70,59 +56,37 @@ def is_none(fa: Option[A]) -> TypeGuard[Nothing[A]]:
 # Instances
 
 
-class PointedInstance(Pointed[Option]):
-    def of(self, a: A) -> OptionKind[A]:
-        return Some(a)
+def of(a: A) -> Option[A]:
+    return Some(a)
 
 
-class FunctorInstance(Functor[Option]):
-    def map(self, f: Fn[AC, B], fa: OptionKind[AC]) -> Option[B]:
-        fa = cast(Option[AC], fa)
+@curry
+def map(f: Fn[AC, B], fa: Option[AC]) -> Option[B]:
+    fa = cast(Option[AC], fa)
 
-        if is_some(fa):
-            return some(f(fa._value))
-        return none()
-
-
-class ApplyInstance(Apply[Option], FunctorInstance):
-    def ap(self, f: OptionKind[Fn[A, B]], fa: OptionKind[A]) -> OptionKind[B]:
-        fa = cast(Option[A], fa)
-        f = cast(Option[Fn[A, B]], f)
-
-        if is_some(f) and is_some(fa):
-            return Some((f.get_value())(fa.get_value()))
-        return none()
+    if is_some(fa):
+        return some(f(fa._value))
+    return none()
 
 
-class ApplicativeInstance(Applicative, ApplyInstance, PointedInstance):
-    pass
+@curry
+def ap(f: Option[Fn[A, B]], fa: Option[A]) -> Option[B]:
+    fa = cast(Option[A], fa)
+    f = cast(Option[Fn[A, B]], f)
+
+    if is_some(f) and is_some(fa):
+        return Some((f.get_value())(fa.get_value()))
+    return none()
 
 
-class ChainInstance(Chain[Option], ApplyInstance):
-    def chain(self, f: Fn[A, OptionKind[B]], fa: OptionKind[A]) -> OptionKind[B]:
-        fa = cast(Option[A], fa)
-        f = cast(Fn[A, Option[B]], f)
+@curry
+def chain(f: Fn[A, Option[B]], fa: Option[A]) -> Option[B]:
+    fa = cast(Option[A], fa)
+    f = cast(Fn[A, Option[B]], f)
 
-        if is_some(fa):
-            return f(fa.get_value())
-        return none()
-
-
-class MonadInstance(Monad, ChainInstance, ApplicativeInstance):
-    pass
-
-
-pointed_instance = PointedInstance()
-functor_instance = FunctorInstance()
-apply_instance = ApplyInstance()
-applicative_instance = ApplicativeInstance()
-chain_instance = ChainInstance()
-monad_instance = MonadInstance()
-
-of = _of(pointed_instance)
-map = _map(functor_instance)
-ap = _ap(apply_instance)
-chain = _chain(chain_instance)
+    if is_some(fa):
+        return f(fa.get_value())
+    return none()
 
 
 def create_eq(E: eq.Eq[A]) -> eq.Eq[Option[A]]:

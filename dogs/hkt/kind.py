@@ -13,6 +13,7 @@ class Kind(Generic[F, A, E, R]):
     ...
 
     if TYPE_CHECKING:  # noqa: WPS604 # pragma: no cover
+
         def __getattr__(self, attrname: str):
             return getattr(self.val, attrname)
 

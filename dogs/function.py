@@ -102,7 +102,7 @@ def pipe(
     ...
 
 
-def pipe(init: Any, *fns: Any) -> Any:
+def pipe(init: Any, *fns: Any) -> Any:  # type: ignore
     if len(fns) == 0:
         return init
     return pipe(fns[0](init), *fns[1:])
