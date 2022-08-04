@@ -15,6 +15,7 @@ from dogs.classes.pointed import Pointed
 from dogs.classes.pointed import of as _of
 from dogs.data import option
 from dogs.function import Fn, Lazy, curry
+from dogs.hkt.kind import Kind2
 
 T = TypeVar("T")
 A = TypeVar("A")
@@ -32,7 +33,6 @@ class Either(Generic[E, A], ABC):
     @abstractmethod
     def is_left(self) -> bool:
         ...
-
 
 class Right(Either[E, A]):
     def __init__(self, value: A) -> None:
@@ -55,26 +55,28 @@ class Left(Either[E, A]):
     def is_left(self) -> bool:
         return True
 
+EitherKind = TypeVar("EitherKind", bound=Either)
+
 
 # Constructors
 
 
-def left(e: E) -> Either[E, Any]:
-    return Left(e)
+def left(e: E) -> Kind2[Either, E, Any]:
+    return cast(Kind2[Either, E, Any], Left(e))
 
 
-def right(a: A) -> Either[Any, A]:
-    return Right(a)
+def right(a: A) -> Kind2[Either, Any, A]:
+    return cast(Kind2[Either, E, Any], Right(a))
 
 
 # Destructors
 
 
-def is_left(fa: Either[E, A]) -> TypeGuard[Left[E, A]]:
+def is_left(fa: Either[E, A]) -> TypeGuard[Kind2[Left, E, A]]:
     return fa.is_left()
 
 
-def is_right(fa: Either[E, A]) -> TypeGuard[Right[E, A]]:
+def is_right(fa: Either[E, A]) -> TypeGuard[Kind2[Right, E, A]]:
     return not fa.is_left()
 
 
@@ -82,12 +84,12 @@ def is_right(fa: Either[E, A]) -> TypeGuard[Right[E, A]]:
 
 
 class _PointedInstance(Pointed):
-    def of(self, a: A) -> Either[Any, A]:
+    def of(self, a: A) -> Kind2[EitherKind, Any, A]:
         return right(a)
 
 
 class _FunctorInstance(Functor):
-    def map(self, f: Fn[A, B], fa: Either[E, A]) -> Either[E, B]:
+    def map(self, f: Fn[A, B], fa: Kind2[EitherKind, E, A]) -> Kind2[EitherKind, E, B]:
         if is_right(fa):
             return right(f(fa.get_value()))
         return cast(Either[E, B], fa)

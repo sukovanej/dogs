@@ -1,4 +1,4 @@
-from typing import Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 F = TypeVar("F")
 A = TypeVar("A")
@@ -9,7 +9,12 @@ R = TypeVar("R")
 
 
 class Kind(Generic[F, A, E, R]):
-    pass
+    val: F
+    ...
+
+    if TYPE_CHECKING:  # noqa: WPS604 # pragma: no cover
+        def __getattr__(self, attrname: str):
+            return getattr(self.val, attrname)
 
 
 Kind1 = Kind[F, A, Any, Any]
