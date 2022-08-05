@@ -23,19 +23,19 @@ def of(a: A) -> ReaderTask[None, A]:
 @curry
 def fmap(f: Fn[A, B], fa: ReaderTask[D, A]) -> ReaderTask[D, B]:
     """Functor"""
-    return pipe(fa, R.fmap(T.fmap(f)))
+    return R.fmap(T.fmap(f))(fa)  # type: ignore
 
 
 @curry
 def ap(f: ReaderTask[D, Fn[A, B]], fa: ReaderTask[D, A]) -> ReaderTask[D, B]:
     """Apply"""
-    return lambda r: pipe(fa(r), T.ap(f(r)))
+    return lambda r: pipe(fa(r), T.ap(f(r)))  # type: ignore
 
 
 @curry
 def chain(f: Fn[A, ReaderTask[D, B]], fa: ReaderTask[D, A]) -> ReaderTask[D, B]:
     """Chain"""
-    return lambda r: pipe(fa(r), T.chain(lambda a: f(a)(r)))
+    return lambda r: pipe(fa(r), T.chain(lambda a: f(a)(r)))  # type: ignore
 
 
 @curry
