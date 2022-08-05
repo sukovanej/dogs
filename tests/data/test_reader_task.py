@@ -1,8 +1,7 @@
 import asyncio
-
 from typing import TypedDict
 
-from dogs import RT, apply, pipe, T
+from dogs import RT, T, apply, pipe
 
 
 class Dependencies(TypedDict):

@@ -1,6 +1,6 @@
 from typing import Any, TypeVar
 
-from dogs.function import Fn, curry
+from dogs.function import Fn, constant, curry
 
 A = TypeVar("A")
 B = TypeVar("B")
@@ -15,7 +15,7 @@ Reader = Fn[R, A]
 
 def of(a: A) -> Reader[Any, A]:
     """Pointed"""
-    return lambda _: a
+    return constant(a)
 
 
 @curry

@@ -1,9 +1,9 @@
 from typing import TypeVar
 
-from dogs.function import Fn, curry, pipe
-from dogs.data import task as T
-from dogs.data import reader as R
 from dogs.data import io as IO
+from dogs.data import reader as R
+from dogs.data import task as T
+from dogs.function import Fn, constant, curry, pipe
 
 A = TypeVar("A")
 B = TypeVar("B")
@@ -41,7 +41,7 @@ def chain(f: Fn[A, ReaderTask[D, B]], fa: ReaderTask[D, A]) -> ReaderTask[D, B]:
 @curry
 def from_io(fa: IO.IO[A]) -> ReaderTask[None, A]:
     """FromIO"""
-    return lambda _: T.from_io(fa)
+    return constant(T.from_io(fa))
 
 
 @curry
