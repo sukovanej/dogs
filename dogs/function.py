@@ -147,3 +147,7 @@ def tap(f: Fn[A, Any], a: A) -> A:
 
 def constant(a: A) -> Fn[Any, A]:
     return lambda _: a
+
+
+def identity(a: A) -> A:
+    return a

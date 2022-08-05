@@ -1,6 +1,6 @@
 from typing import Any, TypeVar
 
-from dogs.function import Fn, constant, curry
+from dogs.function import Fn, constant, curry, identity
 
 A = TypeVar("A")
 B = TypeVar("B")
@@ -41,4 +41,4 @@ def chain(f: Fn[A, Reader[R, B]], fa: Reader[R, A]) -> Reader[R, B]:
 
 def ask() -> Reader[R, R]:
     """Create reader with the dependency in the value."""
-    return lambda r: r
+    return identity
