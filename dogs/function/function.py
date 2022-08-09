@@ -1,5 +1,7 @@
 from inspect import signature
-from typing import Any, Callable, TypeVar, overload
+from typing import Any, TypeVar, overload
+
+from .types import Fn, Fn2, Fn3, Fn4
 
 A = TypeVar("A")
 B = TypeVar("B")
@@ -7,12 +9,6 @@ C = TypeVar("C")
 D = TypeVar("D")
 E = TypeVar("E")
 F = TypeVar("F")
-
-Lazy = Callable[[], A]
-Fn = Callable[[A], B]
-Fn2 = Callable[[A, B], C]
-Fn3 = Callable[[A, B, C], D]
-Fn4 = Callable[[A, B, C, D], E]
 
 # curry
 
@@ -72,45 +68,6 @@ class CurriedFunction:
 
 
 # pipe
-
-
-@overload
-def pipe(init: A) -> A:
-    ...
-
-
-@overload
-def pipe(init: A, /, f: Fn[A, B]) -> B:
-    ...
-
-
-@overload
-def pipe(init: A, /, f: Fn[A, B], g: Fn[B, C]) -> C:
-    ...
-
-
-@overload
-def pipe(init: A, /, f: Fn[A, B], g: Fn[B, C], h: Fn[C, D]) -> D:
-    ...
-
-
-@overload
-def pipe(init: A, /, f: Fn[A, B], g: Fn[B, C], h: Fn[C, D], i: Fn[D, E]) -> E:
-    ...
-
-
-@overload
-def pipe(
-    init: A, /, f: Fn[A, B], g: Fn[B, C], h: Fn[C, D], i: Fn[D, E], j: Fn[E, F]
-) -> F:
-    ...
-
-
-def pipe(init: Any, *fns: Any) -> Any:  # type: ignore
-    """Transform value `init` using provided function one by one."""
-    if len(fns) == 0:
-        return init
-    return pipe(fns[0](init), *fns[1:])
 
 
 def apply(a: A) -> Fn[Fn[A, B], B]:
