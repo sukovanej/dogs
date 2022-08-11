@@ -108,3 +108,10 @@ def constant(a: A) -> Fn[Any, A]:
 
 def identity(a: A) -> A:
     return a
+
+
+def ap_first(a: A) -> Fn[B, A]:
+    def _f(_: B) -> A:
+        return a
+
+    return _f

@@ -1,6 +1,8 @@
-from typing import TypeVar
+from typing import TypeVar, cast
 
-from dogs.function import Fn, Lazy, curry
+from dogs.function import Fn, Lazy
+from dogs.function import ap_first as _ap_first
+from dogs.function import curry, pipe
 
 T = TypeVar("T")
 A = TypeVar("A")
@@ -25,9 +27,15 @@ def fmap(f: Fn[A, B], fa: IO[A]) -> IO[B]:
 
 
 @curry
-def ap(f: IO[Fn[A, B]], fa: IO[A]) -> IO[B]:
+def ap(fa: IO[A], f: IO[Fn[A, B]]) -> IO[B]:
     """Apply"""
     return lambda: unsafe_run_io(f)(unsafe_run_io(fa))
+
+
+@curry
+def ap_first(fa: IO[A], fb: IO[B]) -> IO[A]:
+    """Apply"""
+    return pipe(of(_ap_first), ap(fa), ap(fb))
 
 
 @curry

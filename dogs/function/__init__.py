@@ -1,5 +1,5 @@
 from .flow import flow
-from .function import apply, apply2, constant, curry, identity, tap
+from .function import ap_first, apply, apply2, constant, curry, identity, tap
 from .pipe import pipe
 from .types import Fn, Fn2, Fn3, Fn4, Lazy
 
@@ -17,4 +17,5 @@ __all__ = [
     "constant",
     "identity",
     "flow",
+    "ap_first",
 ]
