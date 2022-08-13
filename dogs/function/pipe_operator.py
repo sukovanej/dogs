@@ -16,6 +16,14 @@ class _EndPipe:
 end_pipe = _EndPipe()
 
 
+class EmptyPipe:
+    def __or__(self, a: A) -> Pipeable[A]:
+        return Pipeable(a)
+
+
+start_empty_pipe = EmptyPipe()
+
+
 class Pipeable(Generic[A]):
     def __init__(self, a: A) -> None:
         self._a = a
